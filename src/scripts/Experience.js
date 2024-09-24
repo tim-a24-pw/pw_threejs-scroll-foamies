@@ -52,6 +52,10 @@ export default class Experience {
     const directionalLight = new THREE.DirectionalLight('#ffffff', 4);
     directionalLight.position.set(1, 2, 5);
     directionalLight.castShadow = true;
+
+    directionalLight.shadow.camera.far = 10;
+    directionalLight.shadow.normalBias = 0.027;
+
     this.scene.add(directionalLight);
   }
 
@@ -63,6 +67,7 @@ export default class Experience {
     this.renderer.setSize(this.sizes.width, this.sizes.height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -79,6 +84,14 @@ export default class Experience {
       this.model = gltf.scene;
       this.model.scale.set(0.005, 0.005, 0.005);
       this.model.rotation.x = 1.5;
+
+      this.model.traverse((child) => {
+        if (child.isMesh && child.material.isMeshStandardMaterial) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+
       this.scene.add(this.model);
     });
   }
